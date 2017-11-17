@@ -1,31 +1,32 @@
-/**
- * Coffeescript
- */
+###
+# CoffeeScript
+###
 
-var cubes, list, math, num, number, opposite, race, square;
+# Assignment:
+number   = 42
+opposite = true
 
-number = 42;
+# Conditions:
+number = -42 if opposite
 
-opposite = true;
+# Functions:
+square = (x) -> x * x
 
-if (opposite) {
-  // Conditions:
-  number = -42;
-}
+# Arrays:
+list = [1, 2, 3, 4, 5]
 
-// Functions:
-square = function(x) {
-  return x * x;
-};
+# Objects:
+math =
+  root:   Math.sqrt
+  square: square
+  cube:   (x) -> x * square x
 
-// Arrays:
-list = [1, 2, 3, 4, 5];
+# Splats:
+race = (winner, runners...) ->
+  print winner, runners
 
-// Objects:
-math = {
-  root: Math.sqrt,
-  square: square,
-  cube: function(x) {
-    return x * square(x);
-  }
-};
+# Existence:
+alert "I knew it!" if elvis?
+
+# Array comprehensions:
+cubes = (math.cube num for num in list)
