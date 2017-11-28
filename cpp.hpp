@@ -9,7 +9,7 @@
 #endif
 
 namespace testNamespace {
-  inline namespace tesInlineNameSpace {
+  inline namespace testInlineNameSpace {
     /// Test Comment
     class testClass {
     public:
