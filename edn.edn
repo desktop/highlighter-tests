@@ -1,0 +1,4 @@
+{:foo "bar"
+ :list (1 2 3)
+ :boolean true
+ :id #uuid "601b69a9-cad8-44fc-ba5c-aaf16037929f"}
