@@ -1,5 +1,5 @@
 Module VBFizzBuzz
-    # Comment
+    ' Comment
     Sub Main()
         Dim x As Int32
         Dim y As Int32
