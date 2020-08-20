@@ -1,0 +1,141 @@
+diff --git a/app/src/lib/get-os.ts b/app/src/lib/get-os.ts
+index c450111c8..5b42728f2 100644
+--- a/app/src/lib/get-os.ts
++++ b/app/src/lib/get-os.ts
+@@ -1,4 +1,3 @@
+-import { compare } from 'compare-versions'
+ import * as OS from 'os'
+ import { UAParser } from 'ua-parser-js'
+ 
+@@ -18,8 +17,8 @@ export function getOS() {
+   }
+ }
+ 
+-/** We're currently running macOS and it is at least Mojave. */
+-export function isMacOsAndMojaveOrLater() {
++/** See the OS we're currently running on is at least Mojave. */
++export function isMojaveOrLater() {
+   if (__DARWIN__) {
+     const parser = new UAParser()
+     const os = parser.getOS()
+@@ -28,13 +27,15 @@ export function isMacOsAndMojaveOrLater() {
+       return false
+     }
+ 
+-    return compare(os.version, '10.13.0', '>=')
++    const [major, minor] = os.version.split('.')
++
++    return major === '10' && minor > '13'
+   }
+   return false
+ }
+ 
+-/** We're currently running Windows 10 and it is at least 1809 Preview Build 17666. */
+-export function isWindows10And1809Preview17666OrLater() {
++/** See the OS we're currently running on is at least 1809. */
++export function is1809OrLater() {
+   if (__WIN32__) {
+     const version = OS.release()
+ 
+@@ -42,7 +43,9 @@ export function isWindows10And1809Preview17666OrLater() {
+       return false
+     }
+ 
+-    return compare(version, '10.0.17666', '>=')
++    const [major, minor, patch] = version.split('.')
++
++    return major === '10' && minor === '0' && patch > '17666'
+   }
+   return false
+-}
++}
+\ No newline at end of file
+diff --git a/app/src/ui/lib/dark-theme.ts b/app/src/ui/lib/dark-theme.ts
+index 31451ec9f..5c8c9788e 100644
+--- a/app/src/ui/lib/dark-theme.ts
++++ b/app/src/ui/lib/dark-theme.ts
+@@ -1,20 +1,12 @@
+ import { remote } from 'electron'
+-import {
+-  isMacOsAndMojaveOrLater,
+-  isWindows10And1809Preview17666OrLater,
+-} from '../../lib/get-os'
++import { isMojaveOrLater } from '../../lib/get-os'
+ 
+ export function supportsDarkMode() {
+-  if (__DARWIN__) {
+-    return isMacOsAndMojaveOrLater()
+-  } else if (__WIN32__) {
+-    // Its technically possible this would still work on prior versions of Windows 10 but 1809
+-    // was released October 2nd, 2018 that the feature can just be "attained" by upgrading
+-    // See https://github.com/desktop/desktop/issues/9015 for more
+-    return isWindows10And1809Preview17666OrLater()
++  if (!__DARWIN__) {
++    return false
+   }
+ 
+-  return false
++  return isMojaveOrLater()
+ }
+ 
+ export function isDarkModeEnabled() {
+@@ -25,4 +17,4 @@ export function isDarkModeEnabled() {
+   // remote is an IPC call, so if we know there's no point making this call
+   // we should avoid paying the IPC tax
+   return remote.nativeTheme.shouldUseDarkColors
+-}
++}
+\ No newline at end of file
+diff --git a/app/src/ui/lib/theme-change-monitor.ts b/app/src/ui/lib/theme-change-monitor.ts
+index c1998ccd6..37d7b8d0c 100644
+--- a/app/src/ui/lib/theme-change-monitor.ts
++++ b/app/src/ui/lib/theme-change-monitor.ts
+@@ -6,12 +6,14 @@ import { supportsDarkMode, isDarkModeEnabled } from './dark-theme'
+ class ThemeChangeMonitor implements IDisposable {
+   private readonly emitter = new Emitter()
+ 
++  private subscriptionID: number | null = null
++
+   public constructor() {
+     this.subscribe()
+   }
+ 
+   public dispose() {
+-    remote.nativeTheme.removeAllListeners()
++    this.unsubscribe()
+   }
+ 
+   private subscribe = () => {
+@@ -19,7 +21,10 @@ class ThemeChangeMonitor implements IDisposable {
+       return
+     }
+ 
+-    remote.nativeTheme.addListener('updated', this.onThemeNotificationFromOS)
++    this.subscriptionID = remote.systemPreferences.subscribeNotification(
++      'AppleInterfaceThemeChangedNotification',
++      this.onThemeNotificationFromOS
++    )
+   }
+ 
+   private onThemeNotificationFromOS = (event: string, userInfo: any) => {
+@@ -31,6 +36,13 @@ class ThemeChangeMonitor implements IDisposable {
+     this.emitThemeChanged(theme)
+   }
+ 
++  private unsubscribe = () => {
++    if (this.subscriptionID !== null) {
++      remote.systemPreferences.unsubscribeNotification(this.subscriptionID)
++      this.subscriptionID = null
++    }
++  }
++
+   public onThemeChanged(fn: (theme: ApplicationTheme) => void): Disposable {
+     return this.emitter.on('theme-changed', fn)
+   }
+@@ -46,4 +58,4 @@ export const themeChangeMonitor = new ThemeChangeMonitor()
+ // this ensures we cleanup any existing subscription on exit
+ remote.app.on('will-quit', () => {
+   themeChangeMonitor.dispose()
+-})
++})
+\ No newline at end of file
