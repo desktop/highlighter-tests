@@ -53,3 +53,10 @@ export class ColorStore  {
     this._colors.splice(index, 1);
   }
 }
+
+export class Person {
+  #SSN: number;
+  name: string;
+  age: number;
+  emergencyContact: Person;
+}
