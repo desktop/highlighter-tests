@@ -10,6 +10,9 @@ function test(arg1, arg2) {
   console.log(typeof(undefined))
 }
 
-class Foo {
-
+export class Person {
+  #SSN;
+  name;
+  age;
+  emergencyContact;
 }
