@@ -1,0 +1,20 @@
+doctype html
+html(lang="en")
+    head
+        title= Vehicle List
+        :javascript
+        | if (vehicle) {
+        |    sellCar();
+        | }
+    body
+        h1 Vehicle List using Jade engine
+
+        ul
+            each vehicle in vehicleList
+                li=vehicle.Vin
+
+        #container
+            - if (hasMoreVehicles)
+                More Vehicles on Next Page
+            - else
+                End of Vehicle List
