@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
+
+const title = 'Hello Astro';
+const items = ['one', 'two', 'three'];
+---
+
+<Layout title={title}>
+  <h1>{title}</h1>
+  <ul>
+    {items.map((item) => (
+      <li>{item}</li>
+    ))}
+  </ul>
+  <Card>
+    <p>This is a card slot</p>
+  </Card>
+</Layout>
+
+<style>
+  h1 {
+    color: purple;
+    font-size: 2rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+</style>
+
+<script>
+  console.log('Hello from Astro');
+  const items = document.querySelectorAll('li');
+  items.forEach((item) => {
+    item.addEventListener('click', () => {
+      alert(item.textContent);
+    });
+  });
+</script>
