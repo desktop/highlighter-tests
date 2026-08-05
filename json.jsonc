@@ -1,0 +1,14 @@
+{
+	/*
+		Multi-line comment
+	*/
+	"key": "value",
+	"array": [1, 2, 3],
+	"nested": {
+		// Single-line comment
+		"innerKey": "innerValue"
+	},
+	"boolean": true,
+	"nullValue": null,
+	"integer": 42
+}
